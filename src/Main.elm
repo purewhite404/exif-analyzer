@@ -29,6 +29,7 @@ main =
 
 
 port analyzeExif : String -> Cmd msg
+port getExif : (Int -> msg) -> Sub msg
 
 
 
@@ -37,12 +38,13 @@ port analyzeExif : String -> Cmd msg
 
 type alias Model =
   { image : Maybe String
+  , exif : Maybe Int
   }
 
 
 init : () -> (Model, Cmd Msg)
 init _ =
-  ( Model Nothing, Cmd.none )
+  ( Model Nothing Nothing, Cmd.none )
 
 
 
@@ -53,6 +55,7 @@ type Msg
   = ImageRequested
   | ImageSelected File
   | ImageLoaded String
+  | GetExif Int
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -75,6 +78,10 @@ update msg model =
       , analyzeExif content
       )
 
+    GetExif exif ->
+      ( {model | exif = Just exif }
+      , Cmd.none )
+
 
 
 -- VIEW
@@ -91,7 +98,7 @@ view model =
       div []
         [ img [ id "picture", src content, width 400 ] []
         , div [ class "description" ]
-          [ div [] [ text "ISO 200" ]
+          [ div [] [ text <| String.concat ["ISO ", String.fromInt <| Maybe.withDefault 200 model.exif ] ]
           , div [] [ text "OLYMPUS" ]
           ]
         ]
@@ -102,4 +109,4 @@ view model =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-  Sub.none
+  getExif GetExif

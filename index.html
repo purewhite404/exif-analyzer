@@ -19,6 +19,8 @@
       img.onload = function(){
         EXIF.getData(img, function() {
           var exif = EXIF.getAllTags(this);
+          var iso = EXIF.getTag(this, "ISOSpeedRatings");
+          app.ports.getExif.send(iso);
           console.log(exif);
         });
       };
