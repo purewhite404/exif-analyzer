@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .description {
+      display: flex;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+  <script src="main.js"></script>
+</head>
+<body>
+  <main></main>
+  <script>
+    var app = Elm.Main.init({ node: document.querySelector('main') });
+    // you can use ports and stuff here
+    app.ports.analyzeExif.subscribe(function (image) {
+      var img = new Image();
+      img.onload = function(){
+        EXIF.getData(img, function() {
+          var exif = EXIF.getAllTags(this);
+          console.log(exif);
+        });
+      };
+      img.src = image;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "elm-live": "^4.0.2"
+  },
+  "scripts": {
+    "elm-live": "elm-live"
+  }
+}
