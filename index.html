@@ -3,7 +3,19 @@
 <head>
   <style>
     .description {
+      width: 800px;
+      display: grid;
+      grid-template-columns: 400px auto;
+    }
+    .exifcell {
+      padding: 0.2em;
       display: flex;
+    }
+    .right {
+      justify-content: end;
+    }
+    .exifelement {
+      padding: 0.2em;
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
@@ -19,9 +31,8 @@
       img.onload = function(){
         EXIF.getData(img, function() {
           var exif = EXIF.getAllTags(this);
-          var iso = EXIF.getTag(this, "ISOSpeedRatings");
-          app.ports.getExif.send(iso);
           console.log(exif);
+          app.ports.getExif.send(JSON.stringify(exif));
         });
       };
       img.src = image;
