@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+  <script src="main.js"></script>
+</head>
+<header class="space">
+  <a href="javascript:history.back();">&LeftArrow; Back</a>
+  <nav class="header-links">
+    <a href="https://github.com/purewhite404/exif-analyzer">Source<img class="icons" src="https://jr2hao.dev/img/github.svg"></a>
+  </nav>
+</header>
+<body>
+  <h1>Exif Analyzer</h1>
+  <main></main>
+  <script>
+    var app = Elm.Main.init({ node: document.querySelector('main') });
+    // you can use ports and stuff here
+    app.ports.analyzeExif.subscribe(function (image) {
+      var img = new Image();
+      img.onload = function(){
+        EXIF.getData(img, function() {
+          var exif = EXIF.getAllTags(this);
+          console.log(exif);
+          app.ports.getExif.send(JSON.stringify(exif));
+        });
+      };
+      img.src = image;
+    });
+  </script>
+  <div class="dark-mode-buttons">
+        <button class="dark-mode-button" id="dark-mode-on"><img src="http://jr2hao.dev/dark_mode.svg" width="24" height="24" alt="Dark mode" aria-label="dark mode toggle" title="Dark mode"></button>
+        <button class="dark-mode-button" id="dark-mode-off"><img src="http://jr2hao.dev/light_mode.svg" width="24" height="24" alt="Light mode" aria-label="light mode toggle" title="Light mode"></button>
+  </div>
+  <script>
+        const cls = document.querySelector("html").classList;
+        const sessionTheme = sessionStorage.getItem("theme");
+
+        function setDark() {
+            cls.add("dark-mode");
+            cls.remove("light-mode");
+            sessionStorage.setItem("theme", "dark");
+        }
+        function setLight() {
+            cls.add("light-mode");
+            cls.remove("dark-mode");
+            sessionStorage.setItem("theme", "light");
+        }
+
+        if (sessionTheme === "dark") {
+            setDark();
+        } else if (sessionTheme === "light") {
+            setLight();
+        } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            setDark();
+        }
+
+        document.getElementById("dark-mode-on").addEventListener("click", function(e) {
+            setDark();
+        });
+        document.getElementById("dark-mode-off").addEventListener("click", function(e) {
+            setLight();
+        });
+    </script>
+    <footer>
+      <small>
+        2025 jr2hao all rights reserved.
+      </small>
+    </footer>
+</body>
+</html>
