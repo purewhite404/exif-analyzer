@@ -52,6 +52,7 @@ type alias EXIF =
   , exposureTime : Float
   , focalLength : Float
   , exposureProgram : String
+  , exposureBias : Float
   , date : String
   , lens : String
   }
@@ -66,6 +67,7 @@ exifDecoder =
     |> required "ExposureTime" float
     |> required "FocalLength" float
     |> required "ExposureProgram" string
+    |> required "ExposureBias" float
     |> required "DateTime" string
     |> optional "undefined" string ""
 
@@ -83,6 +85,7 @@ initialEXIF =
   , exposureTime = 0
   , focalLength = 0
   , exposureProgram = ""
+  , exposureBias = 0
   , date = ""
   , lens = ""
   }
@@ -124,11 +127,8 @@ update msg model =
         Ok exif ->
           ( { model | exif = Just exif }
           , Cmd.none )
-        Err error ->
-          let
-            _ = Debug.log <| Decode.errorToString error
-          in
-          ( model, Cmd.none)
+        Err _ ->
+          ( model, Cmd.none )
 
 
 
@@ -144,7 +144,7 @@ view model =
         [ img [ id "picture", src i, width 800 ] []
         , div [ class "description" ]
           [ div [ class "exifcell left" ]
-            [ div [ class "exifelement" ] [text <| e.make ]
+            [ div [ class "exifelement" ] [ text <| e.make ]
             ]
           , div [ class "exifcell right" ]
             [ div [ class "exifelement" ] [ text <| String.fromFloat e.focalLength ++ "mm" ]
@@ -153,11 +153,14 @@ view model =
             , div [ class "exifelement" ] [ text <| "ISO" ++ String.fromInt e.iso ]
             ]
           , div [ class "exifcell left" ]
-            [ div [ class "exifelement" ] [ text <| e.model ++ "/" ]
-            , div [ class "exifelement" ] [ text <| e.lens ]
+            [ div [ class "exifelement" ] [ text <| e.model ]
+            , div [ class "exifelement" ]
+              [ text <| if String.isEmpty e.lens then "" else "/ " ++ e.lens ]
             ]
           , div [ class "exifcell right" ]
             [ div [ class "exifelement" ] [ text <| e.exposureProgram ]
+            , div [ class "exifelement" ]
+              [ text <| (if e.exposureBias > 0 then "+" else "") ++ String.fromFloat e.exposureBias ++ "EV" ]
             , div [ class "exifelement" ] [ text <| showdate e.date ]
             ]
           ]
@@ -167,7 +170,11 @@ view model =
     (Just i, Nothing) ->
       div []
         [ img [ id "picture", src i, width 800 ] []
-        , div [ class "description" ] []
+        , div [ class "description" ]
+          [ div [ class "exifcell left" ]
+            [ div [ class "exifelement" ] [ text <| "No exif" ]
+            ]
+          ]
         , button [ onClick ImageRequested ] [ text "Upload image" ]
         ]
 
